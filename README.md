@@ -140,6 +140,31 @@ npm install
 npm run dev
 ```
 
+## Presentation Demo Data
+
+Seed the database configured in `server/.env` with fictional demo accounts, mentor profiles, bookings in several statuses, and natural sample session chats:
+
+```bash
+cd server
+npm run seed:demo
+```
+
+The seed is repeatable and refuses to overwrite accounts or profiles that are not marked as demo data. Demo accounts use `SolaceDemo!2026`:
+
+- User: `demo.user@solace.local`
+- Mentor: `demo.mentor.maya@solace.local`
+- Additional mentors: `demo.mentor.rohan@solace.local`, `demo.mentor.leela@solace.local`
+
+To show quick-fill demo sign-in buttons on the login page, set `REACT_APP_DEMO_MODE=true` in `client/.env` and restart the frontend. Demo records are visibly labeled as fictional sample data in Mentor Connect.
+
+The accepted demo session keeps its video-room button available outside the normal appointment window, so the video flow can be shown during a presentation. Regular sessions still enforce their scheduled join window.
+
+For the full architecture, implementation walkthrough, feature comparison, AI and mentor data flows, presentation sequence, and professor Q&A, see [PROJECT_PRESENTATION_GUIDE.md](PROJECT_PRESENTATION_GUIDE.md). The demo seed also adds 18 fictional AI chat threads and corresponding mood logs across the prior 29 days for the demo user.
+
+### Trusted-contact email alerts
+
+Solace can email a trusted contact when the user's configured safety threshold is reached, but only when the contact is explicitly opted in for email alerts. Configure `RESEND_API_KEY` and `TRUSTED_CONTACT_FROM_EMAIL` in `server/.env` using an authorized sender address in Resend. See the [Resend send-email API guide](https://resend.com/docs/api-reference/emails/send-email). Restart the backend after changing environment variables. The alert does not include the user's message or chat history. Each contact receives at most one alert per chat thread; phone numbers remain a manual call option and are not sent SMS messages. The response reports whether Resend accepted the request; inbox delivery is not confirmed without provider webhooks. If the provider is not configured or rejects the request, Solace shows that no email was sent.
+
 ## Auth Flow
 
 The active auth flow is now:
