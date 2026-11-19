@@ -167,6 +167,19 @@ export const changePassword = async (passwordData) => {
   return response.data;
 };
 
+export const getMentors = async (filters = {}) => (await api.get('/mentors', { params: filters })).data;
+export const getMentor = async (mentorId) => (await api.get(`/mentors/${mentorId}`)).data;
+export const getMentorAvailability = async (mentorId, date) => (await api.get(`/mentors/${mentorId}/availability`, { params: { date } })).data;
+export const requestMentorSession = async (mentorId, data) => (await api.post(`/mentors/${mentorId}/sessions`, data)).data;
+export const getMentorSessions = async () => (await api.get('/mentors/sessions')).data;
+export const updateMentorSession = async (sessionId, data) => (await api.put(`/mentors/sessions/${sessionId}`, data)).data;
+export const getMyMentorProfile = async () => (await api.get('/mentors/me/profile')).data;
+export const submitMentorProfile = async (data) => (await api.post('/mentors/me/profile', data)).data;
+export const getSessionMessages = async (sessionId) => (await api.get(`/mentors/sessions/${sessionId}/messages`)).data;
+export const sendSessionMessage = async (sessionId, content) => (await api.post(`/mentors/sessions/${sessionId}/messages`, { content })).data;
+export const getSessionMeeting = async (sessionId) => (await api.get(`/mentors/sessions/${sessionId}/meeting`)).data;
+export const updateEmergencyPreferences = async (data) => (await api.put('/user/emergency-preferences', data)).data;
+
 // ============================================
 // Health Check
 // ============================================

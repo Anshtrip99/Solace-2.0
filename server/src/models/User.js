@@ -32,6 +32,22 @@ const userSchema = new mongoose.Schema({
     maxlength: [50, 'Name cannot exceed 50 characters']
   },
 
+  role: { type: String, enum: ['user', 'mentor'], default: 'user' },
+  isDemo: { type: Boolean, default: false, index: true },
+
+  trustedContacts: [{
+    name: { type: String, trim: true, maxlength: 80 },
+    relationship: { type: String, trim: true, maxlength: 40 },
+    phone: { type: String, trim: true, maxlength: 30 },
+    email: { type: String, trim: true, lowercase: true, maxlength: 120 },
+    consentToContact: { type: Boolean, default: false },
+    consentToEmail: { type: Boolean, default: false }
+  }],
+  emergencyPreferences: {
+    enabled: { type: Boolean, default: false },
+    threshold: { type: String, enum: ['high', 'crisis'], default: 'crisis' }
+  },
+
   // User's preferred language
   preferredLanguage: {
     type: String,

@@ -7,11 +7,33 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const Field = ({ id, label, type = 'text', value, onChange, placeholder, disabled }) => (
+  <div>
+    <label
+      htmlFor={id}
+      style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 7, letterSpacing: 0.02 }}
+    >
+      {label}
+    </label>
+    <input
+      id={id}
+      type={type}
+      className="input"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      disabled={disabled}
+      required
+    />
+  </div>
+);
+
 const Signup = () => {
   const [name, setName]                     = useState('');
   const [email, setEmail]                   = useState('');
   const [password, setPassword]             = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('user');
   const [loading, setLoading]               = useState(false);
   const [error, setError]                   = useState('');
 
@@ -27,7 +49,7 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      const result = await signup(name, email, password);
+      const result = await signup(name, email, password, role);
       if (result.success) {
         navigate('/', { replace: true, state: { message: result.message || 'Account created. Please sign in.' } });
       } else {
@@ -39,27 +61,6 @@ const Signup = () => {
       setLoading(false);
     }
   };
-
-  const Field = ({ id, label, type = 'text', value, onChange, placeholder }) => (
-    <div>
-      <label
-        htmlFor={id}
-        style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 7, letterSpacing: 0.02 }}
-      >
-        {label}
-      </label>
-      <input
-        id={id}
-        type={type}
-        className="input"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        disabled={loading}
-        required
-      />
-    </div>
-  );
 
   return (
     <div
@@ -117,6 +118,16 @@ const Signup = () => {
             </p>
           </div>
 
+          <div role="group" aria-label="Account type" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+            {[['user', 'I’m here for support'], ['mentor', 'I’d like to mentor']].map(([value, label]) => (
+              <button key={value} type="button" onClick={() => setRole(value)} className="f-ui"
+                aria-pressed={role === value}
+                style={{ padding: '13px 12px', borderRadius: 'var(--r-md)', border: `1px solid ${role === value ? 'var(--accent)' : 'var(--border-subtle)'}`, background: role === value ? 'var(--accent-bg)' : 'var(--bg-raised)', color: role === value ? 'var(--accent-bright)' : 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
           {/* Error */}
           {error && (
             <div
@@ -136,10 +147,10 @@ const Signup = () => {
           )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <Field id="name" label="Full name" value={name} onChange={setName} placeholder="Your name" />
-            <Field id="email" label="Email address" type="email" value={email} onChange={setEmail} placeholder="you@example.com" />
-            <Field id="password" label="Password" type="password" value={password} onChange={setPassword} placeholder="Minimum 6 characters" />
-            <Field id="confirmPassword" label="Confirm password" type="password" value={confirmPassword} onChange={setConfirmPassword} placeholder="Repeat your password" />
+            <Field id="name" label="Full name" value={name} onChange={setName} placeholder="Your name" disabled={loading} />
+            <Field id="email" label="Email address" type="email" value={email} onChange={setEmail} placeholder="you@example.com" disabled={loading} />
+            <Field id="password" label="Password" type="password" value={password} onChange={setPassword} placeholder="Minimum 6 characters" disabled={loading} />
+            <Field id="confirmPassword" label="Confirm password" type="password" value={confirmPassword} onChange={setConfirmPassword} placeholder="Repeat your password" disabled={loading} />
 
             <button
               type="submit"

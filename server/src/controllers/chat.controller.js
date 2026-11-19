@@ -4,6 +4,8 @@
  */
 
 const orchestrator = require('../services/orchestrator.service');
+const User = require('../models/User');
+const { sendTrustedContactEmail } = require('../services/trusted-contact-email.service');
 
 /**
  * Send a message and get AI response
@@ -37,6 +39,31 @@ const sendMessage = async (req, res) => {
 
     // Process message through AI pipeline
     const result = await orchestrator.processMessage(userId, message, chatId);
+    const account = await User.findById(userId).select('trustedContacts emergencyPreferences');
+    const riskLevel = result.pipeline?.safety?.riskLevel;
+    const thresholdMet = account?.emergencyPreferences?.threshold === 'high'
+      ? ['high', 'crisis'].includes(riskLevel)
+      : riskLevel === 'crisis';
+    let trustedContactPrompt = null;
+    if (account?.emergencyPreferences?.enabled && thresholdMet) {
+      const optedInContacts = (account.trustedContacts || []).filter(contact => contact.consentToContact);
+      const contacts = await Promise.all(optedInContacts.map(async contact => {
+        let emailStatus = 'email_opt_in_required';
+        if (!contact.email) emailStatus = 'email_not_available';
+        else if (contact.consentToEmail) {
+          const notification = await sendTrustedContactEmail({
+            userId,
+            chatId: result.chatId,
+            recipientEmail: contact.email,
+            userName: req.user.name,
+            riskLevel,
+          });
+          emailStatus = notification.status;
+        }
+        return { name: contact.name, phone: contact.phone, email: contact.email, emailStatus };
+      }));
+      trustedContactPrompt = { contacts };
+    }
 
     // Return response
     res.json({
@@ -53,6 +80,7 @@ const sendMessage = async (req, res) => {
           riskCategories: result.pipeline?.safety?.riskCategories,
           needsAttention: result.requiresImmediateAttention || false
         },
+        trustedContactPrompt,
         resources: result.resources,
         followUp: result.followUp,
         processingTime: result.processingTime

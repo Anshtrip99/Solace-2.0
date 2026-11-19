@@ -54,17 +54,22 @@ const processMessage = async (userId, message, chatId = null) => {
     if (safetyResult.riskLevel === 'crisis' || safetyResult.riskLevel === 'high') {
       console.log('CRISIS DETECTED - Initiating safety protocol');
       const safetyResponse = safetyService.generateSafetyResponse(safetyResult);
-
-      await updateChat(userId, chatId, message, safetyResponse.response, moodResult, safetyResult);
+      const processingTime = Date.now() - pipelineStartTime;
+      const finalChatId = await updateChat(userId, chatId, message, safetyResponse.response, moodResult, safetyResult, {
+        ...pipelineResults,
+        resources: safetyResponse.resources || [],
+        processingTime,
+      });
 
       return {
         success: true,
         response: safetyResponse.response,
+        chatId: finalChatId,
         pipeline: pipelineResults,
         requiresImmediateAttention: true,
         resources: safetyResponse.resources,
         timestamp: new Date().toISOString(),
-        processingTime: Date.now() - pipelineStartTime
+        processingTime
       };
     }
 
@@ -87,9 +92,13 @@ const processMessage = async (userId, message, chatId = null) => {
 
     console.log('   Response generated successfully');
 
-    const finalChatId = await updateChat(userId, chatId, message, responseResult.response, moodResult, safetyResult);
-
     const processingTime = Date.now() - pipelineStartTime;
+    const finalChatId = await updateChat(userId, chatId, message, responseResult.response, moodResult, safetyResult, {
+      ...pipelineResults,
+      resources: responseResult.resources || [],
+      followUp: responseResult.followUp || '',
+      processingTime,
+    });
     console.log(`Pipeline completed in ${processingTime}ms`);
 
     return {
@@ -198,8 +207,34 @@ const logSafety = async (userId, chatId, message, safetyResult) => {
   }
 };
 
-const updateChat = async (userId, chatId, userMessage, aiResponse, moodResult, safetyResult) => {
+const updateChat = async (userId, chatId, userMessage, aiResponse, moodResult, safetyResult, pipeline = {}) => {
   try {
+    const agentSnapshot = {
+      mood: moodResult.mood,
+      moodConfidence: moodResult.confidence,
+      moodIndicators: moodResult.indicators || [],
+      safety: {
+        riskLevel: safetyResult.riskLevel || 'none',
+        riskScore: safetyResult.riskScore || 0,
+        assessment: safetyResult.assessment || '',
+        riskCategories: safetyResult.riskCategories || [],
+        triggerPhrases: safetyResult.triggerPhrases || [],
+        immediateAction: Boolean(safetyResult.immediateAction),
+      },
+      rag: {
+        documentsFound: pipeline.rag?.relevantDocs?.length ?? pipeline.rag?.documentsFound ?? 0,
+        categories: pipeline.rag?.relevantDocs?.map((doc) => doc.category) || pipeline.rag?.categories || [],
+      },
+      plan: {
+        strategy: pipeline.plan?.strategy || '',
+        primaryFocus: pipeline.plan?.primaryFocus || '',
+        keyPoints: pipeline.plan?.keyPoints || [],
+        tone: pipeline.plan?.tone || '',
+      },
+      processingTime: pipeline.processingTime ?? null,
+      followUp: pipeline.followUp || '',
+      resources: pipeline.resources || [],
+    };
     let chat;
 
     if (chatId) {
@@ -218,7 +253,8 @@ const updateChat = async (userId, chatId, userMessage, aiResponse, moodResult, s
         chat.messages.push({
           role: 'assistant',
           content: aiResponse,
-          timestamp: new Date()
+          timestamp: new Date(),
+          agentSnapshot,
         });
 
         await chat.save();
@@ -241,7 +277,8 @@ const updateChat = async (userId, chatId, userMessage, aiResponse, moodResult, s
         {
           role: 'assistant',
           content: aiResponse,
-          timestamp: new Date()
+          timestamp: new Date(),
+          agentSnapshot,
         }
       ],
       containsSensitiveContent: safetyResult.riskLevel !== 'none'

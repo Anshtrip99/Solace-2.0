@@ -6,6 +6,8 @@ import swaggerSpec from './config/swagger.config.mjs';
 import authRoutes from './routes/auth.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import userRoutes from './routes/user.routes.js';
+import mentorRoutes from './routes/mentor.routes.js';
+import connectDB from './config/db.js';
 
 const app = express();
 
@@ -18,6 +20,18 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Vercel runs this Express app as a serverless function. Connect lazily and
+// reuse Mongoose's connection across warm function invocations.
+app.use(async (req, res, next) => {
+  if (req.path === '/api/health' || req.path.startsWith('/api-docs')) return next();
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * @openapi
@@ -70,6 +84,7 @@ app.use(
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/mentors', mentorRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

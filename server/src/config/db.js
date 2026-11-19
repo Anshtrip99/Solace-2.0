@@ -9,7 +9,15 @@ const mongoose = require('mongoose');
  * Connect to MongoDB
  * Uses the connection string from environment variables
  */
+let connectionPromise;
+
 const connectDB = async () => {
+  if (mongoose.connection.readyState === 1) return mongoose.connection;
+  if (connectionPromise) return connectionPromise;
+  if (!process.env.MONGODB_URI || /YOUR_USERNAME|xxxxx/i.test(process.env.MONGODB_URI)) {
+    throw new Error('MONGODB_URI must be configured with a valid MongoDB connection string.');
+  }
+
   try {
     // Validate MONGODB_URI is configured
     if (!process.env.MONGODB_URI || process.env.MONGODB_URI.includes('YOUR_USERNAME') || process.env.MONGODB_URI.includes('xxxxx')) {
@@ -31,7 +39,8 @@ const connectDB = async () => {
       process.exit(1);
     }
 
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    connectionPromise = mongoose.connect(process.env.MONGODB_URI);
+    const conn = await connectionPromise;
 
     console.log(`\x1b[32mMongoDB Connected: ${conn.connection.host}\x1b[0m`);
   } catch (error) {
@@ -40,7 +49,8 @@ const connectDB = async () => {
     console.error('\x1b[31m%s\x1b[0m', '╚══════════════════════════════════════════════════════════╝');
     console.error(`\n\x1b[31mError: ${error.message}\x1b[0m\n`);
     console.error('\x1b[33mCheck your MONGODB_URI in server/.env\x1b[0m\n');
-    process.exit(1);
+    connectionPromise = undefined;
+    throw error;
   }
 };
 

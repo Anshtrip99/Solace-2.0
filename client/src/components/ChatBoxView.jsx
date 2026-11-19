@@ -47,6 +47,7 @@ const ChatBoxView = ({ chatId, messages, onNewMessage, onChatIdChange, onConvers
           mood: res.data.mood?.mood, confidence: res.data.mood?.confidence,
           resources: res.data.resources, riskLevel: res.data.safety?.riskLevel,
           followUp: res.data.followUp, safety: res.data.safety,
+          trustedContactPrompt: res.data.trustedContactPrompt,
         });
         if (onConversationPersisted) await onConversationPersisted();
       } else {
@@ -210,7 +211,7 @@ const ChatBoxView = ({ chatId, messages, onNewMessage, onChatIdChange, onConvers
           </div>
           <p style={{ marginTop:10, textAlign:'center', fontSize:12, color:'var(--text-faint)', lineHeight:1.6 }}>
             Supportive guidance only — not medical advice or emergency care.{' '}
-            <span style={{ color:'var(--accent)', fontWeight:600 }}>988</span> for immediate crisis support.
+            <span style={{ color:'var(--accent)', fontWeight:600 }}>Tele-MANAS 14416</span> or <span style={{ color:'var(--accent)', fontWeight:600 }}>112</span> for immediate emergency support.
           </p>
         </form>
       </div>

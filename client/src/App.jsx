@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -12,6 +12,9 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Chat from './pages/Chat.jsx';
 import MoodAnalytics from './pages/MoodAnalytics.jsx';
+import MentorConnect from './pages/MentorConnect.jsx';
+import MentorOnboarding from './pages/MentorOnboarding.jsx';
+import MeetingRoom from './pages/MeetingRoom.jsx';
 import './index.css';
 
 /**
@@ -19,7 +22,8 @@ import './index.css';
  * Redirects to login if user is not authenticated
  */
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -34,6 +38,10 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  if (user?.role === 'mentor' && ['/home', '/chat', '/mood-analytics'].includes(location.pathname)) {
+    return <Navigate to="/mentor-connect" replace />;
   }
 
   return children;
@@ -137,6 +145,10 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/mentor-connect" element={<ProtectedRoute><Layout><MentorConnect /></Layout></ProtectedRoute>} />
+          <Route path="/mentor/onboarding" element={<ProtectedRoute><Layout><MentorOnboarding /></Layout></ProtectedRoute>} />
+          <Route path="/mentor/sessions/:sessionId/meeting" element={<ProtectedRoute><Layout><MeetingRoom /></Layout></ProtectedRoute>} />
 
           {/* Catch all - redirect to login */}
           <Route path="*" element={<Navigate to="/" replace />} />

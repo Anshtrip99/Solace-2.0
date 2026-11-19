@@ -12,6 +12,7 @@ const {
   deleteAccount
 } = require('../controllers/user.controller');
 const { protect } = require('../middlewares/auth.middleware');
+const { saveEmergencyPreferences } = require('../controllers/mentor.controller');
 
 /**
  * @route   GET /api/user/profile
@@ -33,6 +34,7 @@ router.put('/profile', protect, updateProfile);
  * @access  Private
  */
 router.put('/password', protect, changePassword);
+router.put('/emergency-preferences', protect, saveEmergencyPreferences);
 
 /**
  * @route   DELETE /api/user/account

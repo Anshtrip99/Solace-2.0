@@ -45,6 +45,34 @@ const messageSchema = new mongoose.Schema({
   safetyFlag: {
     type: Boolean,
     default: false
+  },
+
+  // The analysis shown beside the assistant reply, retained for conversation history.
+  agentSnapshot: {
+    mood: { type: String, default: null },
+    moodConfidence: { type: Number, min: 0, max: 1, default: null },
+    moodIndicators: [{ type: String }],
+    safety: {
+      riskLevel: { type: String, enum: ['none', 'low', 'medium', 'high', 'crisis'], default: 'none' },
+      riskScore: { type: Number, min: 0, max: 1, default: 0 },
+      assessment: { type: String, maxlength: 1000, default: '' },
+      riskCategories: [{ type: String }],
+      triggerPhrases: [{ type: String }],
+      immediateAction: { type: Boolean, default: false },
+    },
+    rag: {
+      documentsFound: { type: Number, default: 0 },
+      categories: [{ type: String }],
+    },
+    plan: {
+      strategy: { type: String, default: '' },
+      primaryFocus: { type: String, default: '' },
+      keyPoints: [{ type: String }],
+      tone: { type: String, default: '' },
+    },
+    processingTime: { type: Number, default: null },
+    followUp: { type: String, default: '' },
+    resources: [{ name: String, contact: String, description: String }],
   }
 });
 
@@ -96,7 +124,10 @@ const chatSchema = new mongoose.Schema({
   containsSensitiveContent: {
     type: Boolean,
     default: false
-  }
+  },
+
+  isDemo: { type: Boolean, default: false, index: true },
+  demoKey: { type: String, trim: true, unique: true, sparse: true }
 
 }, {
   timestamps: true,

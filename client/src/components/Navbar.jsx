@@ -37,7 +37,7 @@ const Navbar = () => {
         }}
       >
         {/* Brand */}
-        <Link to={isAuthenticated ? '/home' : '/'} style={{ textDecoration: 'none', flexShrink: 0 }}>
+        <Link to={isAuthenticated ? (user?.role === 'mentor' ? '/mentor-connect' : '/home') : '/'} style={{ textDecoration: 'none', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div
               style={{
@@ -70,12 +70,17 @@ const Navbar = () => {
         {/* Centre nav */}
         {isAuthenticated && (
           <nav style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <NavLink to="/home" className={({ isActive }) => `nav-link f-ui${isActive ? ' active' : ''}`}>
-              Overview
+            <NavLink to={user?.role === 'mentor' ? '/mentor-connect' : '/home'} className={({ isActive }) => `nav-link f-ui${isActive ? ' active' : ''}`}>
+              {user?.role === 'mentor' ? 'Sessions' : 'Overview'}
             </NavLink>
-            <NavLink to="/chat" className={({ isActive }) => `nav-link f-ui${isActive ? ' active' : ''}`}>
-              Conversations
-            </NavLink>
+            {user?.role !== 'mentor' && <>
+              <NavLink to="/chat" className={({ isActive }) => `nav-link f-ui${isActive ? ' active' : ''}`}>
+                Conversations
+              </NavLink>
+              <NavLink to="/mentor-connect" className={({ isActive }) => `nav-link f-ui${isActive ? ' active' : ''}`}>
+                Mentor Connect
+              </NavLink>
+            </>}
           </nav>
         )}
 

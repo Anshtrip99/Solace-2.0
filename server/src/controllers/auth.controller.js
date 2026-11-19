@@ -25,7 +25,7 @@ const generateToken = (id) => {
  */
 const signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role = 'user' } = req.body;
 
     // Validate input
     if (!name || !email || !password) {
@@ -34,6 +34,7 @@ const signup = async (req, res) => {
         message: 'Please provide name, email, and password'
       });
     }
+    if (!['user', 'mentor'].includes(role)) return res.status(400).json({ success: false, message: 'Invalid account type' });
 
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -49,7 +50,8 @@ const signup = async (req, res) => {
     const user = await User.create({
       name,
       email: email.toLowerCase(),
-      password
+      password,
+      role
     });
 
     // Return success response
@@ -60,7 +62,9 @@ const signup = async (req, res) => {
         user: {
           id: user._id,
           name: user.name,
-          email: user.email
+          email: user.email,
+          role: user.role,
+          isDemo: user.isDemo
         }
       }
     });
@@ -152,7 +156,9 @@ const login = async (req, res) => {
         user: {
           id: user._id,
           name: user.name,
-          email: user.email
+          email: user.email,
+          role: user.role,
+          isDemo: user.isDemo
         },
         token
       }
@@ -186,7 +192,11 @@ const getProfile = async (req, res) => {
           email: user.email,
           preferredLanguage: user.preferredLanguage,
           timezone: user.timezone,
-          createdAt: user.createdAt
+          createdAt: user.createdAt,
+          role: user.role,
+          isDemo: user.isDemo,
+          trustedContacts: user.trustedContacts,
+          emergencyPreferences: user.emergencyPreferences
         }
       }
     });

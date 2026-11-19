@@ -4,7 +4,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ChatBoxView from '../components/ChatBoxView';
 import { getChat, getChatHistory, getMoodHistory } from '../services/api';
@@ -30,6 +30,7 @@ const mapMsg = (m) => ({
   role: m.role, content: m.content, timestamp: m.timestamp,
   mood: m.detectedMood || null, confidence: m.moodConfidence || null,
   riskLevel: m.safetyFlag ? 'flagged' : 'none',
+  agentSnapshot: m.agentSnapshot || null,
 });
 
 const fmtDate = (v) => {
@@ -191,7 +192,7 @@ const Chat = () => {
             {[
               { label: 'Patterns', value: moodHistory.length || '—' },
               { label: 'Sessions', value: chatHistory.length || '—' },
-              { label: 'Crisis line', value: '988', accent: true },
+              { label: 'Helpline', value: '14416', accent: true },
             ].map(({ label, value, accent }, i) => (
               <React.Fragment key={label}>
                 {i > 0 && <div style={{ width: 1, height: 28, background: 'var(--border-faint)' }} />}
@@ -385,6 +386,8 @@ const Chat = () => {
             )}
           </div>
 
+          {user?.isDemo && <div className="demo-banner" role="note" style={{ margin: '12px 24px 0' }}><strong>Fictional AI chat and mood history</strong><span>These sample conversations span several weeks and are for the presentation demo.</span></div>}
+
           {/* Chat body */}
           {activeTab === 'mood' ? (
             <div style={{ flex:1, overflowY:'auto', padding:'28px 36px' }}>
@@ -515,13 +518,13 @@ const Chat = () => {
               <div style={{ display:'flex', flexDirection:'column', gap: 9 }}>
                 <div style={{ padding:'12px 16px', borderRadius:'var(--r-md)', background:'rgba(200,168,130,0.08)', border:'1px solid rgba(200,168,130,0.18)' }}>
                   <p className="t-label" style={{ color:'var(--accent)', marginBottom: 6, fontSize: 9.5 }}>Call or text</p>
-                  <p className="f-display" style={{ fontSize:30, color:'var(--text-primary)', lineHeight:1 }}>988</p>
-                  <p style={{ fontSize:12.5, color:'var(--text-muted)', marginTop:4 }}>Suicide & Crisis Lifeline</p>
+                  <p className="f-display" style={{ fontSize:30, color:'var(--text-primary)', lineHeight:1 }}>14416</p>
+                  <p style={{ fontSize:12.5, color:'var(--text-muted)', marginTop:4 }}>Tele-MANAS mental health helpline</p>
                 </div>
                 <div style={{ padding:'10px 14px', borderRadius:'var(--r-md)', background:'var(--sage-bg)', border:'1px solid rgba(107,143,113,0.20)' }}>
-                  <p style={{ fontSize:13, fontWeight:600, color:'var(--sage-bright)', marginBottom:4 }}>Crisis Text Line</p>
+                  <p style={{ fontSize:13, fontWeight:600, color:'var(--sage-bright)', marginBottom:4 }}>Alternate toll-free</p>
                   <p style={{ fontSize:13, color:'var(--text-muted)' }}>
-                    Text <strong style={{ color:'var(--text-body)' }}>HOME</strong> to <strong style={{ color:'var(--text-body)' }}>741741</strong>
+                    Call <strong style={{ color:'var(--text-body)' }}>1800-89-14416</strong>
                   </p>
                 </div>
               </div>

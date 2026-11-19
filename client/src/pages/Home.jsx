@@ -98,6 +98,11 @@ const Home = () => {
           </div>
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Link to={user?.role === 'mentor' ? '/mentor/onboarding' : '/mentor-connect'} style={{ textDecoration: 'none' }}>
+              <button className="btn btn-secondary f-ui" style={{ fontSize: 15, padding: '13px 24px' }}>
+                {user?.role === 'mentor' ? 'Mentor profile & sessions' : 'Find a mentor'}
+              </button>
+            </Link>
             <Link to="/chat" style={{ textDecoration: 'none' }}>
               <button className="btn btn-primary f-ui" style={{ fontSize: 15, padding: '13px 28px' }}>
                 <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -339,21 +344,21 @@ const Home = () => {
                 <div style={{ padding: '14px 18px', borderRadius: 'var(--r-md)', background: 'rgba(200,168,130,0.08)', border: '1px solid rgba(200,168,130,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
                     <p className="t-label" style={{ color: 'var(--accent)', marginBottom: 6 }}>Call or text</p>
-                    <p className="f-display" style={{ fontSize: 32, color: 'var(--text-primary)', lineHeight: 1 }}>988</p>
-                    <p style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 4 }}>Suicide & Crisis Lifeline</p>
+                    <p className="f-display" style={{ fontSize: 32, color: 'var(--text-primary)', lineHeight: 1 }}>14416</p>
+                    <p style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 4 }}>Tele-MANAS mental health helpline</p>
                   </div>
                   <svg width="22" height="22" fill="none" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" style={{ opacity: 0.5 }}>
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l1.27-.63a2 2 0 0 1 2.11.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                   </svg>
                 </div>
                 <div style={{ padding: '12px 16px', borderRadius: 'var(--r-md)', background: 'var(--sage-bg)', border: '1px solid rgba(107,143,113,0.20)' }}>
-                  <p style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--sage-bright)', marginBottom: 5 }}>Crisis Text Line</p>
+                  <p style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--sage-bright)', marginBottom: 5 }}>Alternate toll-free</p>
                   <p style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>
-                    Text <strong style={{ color: 'var(--text-body)' }}>HOME</strong> to <strong style={{ color: 'var(--text-body)' }}>741741</strong>
+                    Call <strong style={{ color: 'var(--text-body)' }}>1800-89-14416</strong>
                   </p>
                 </div>
                 <p style={{ fontSize: 12.5, color: 'var(--text-faint)', lineHeight: 1.65 }}>
-                  Solace is not a substitute for professional mental health care. These resources are available 24/7.
+                  Solace is not a substitute for professional mental health care. For immediate danger or urgent emergency assistance, call 112.
                 </p>
               </div>
             </div>

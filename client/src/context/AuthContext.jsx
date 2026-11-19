@@ -86,10 +86,10 @@ export const AuthProvider = ({ children }) => {
    * @param {string} password - User password
    * @returns {Promise<Object>} Signup result
    */
-  const signup = async (name, email, password) => {
+  const signup = async (name, email, password, role = 'user') => {
     try {
       setError(null);
-      const response = await apiSignup({ name, email, password });
+      const response = await apiSignup({ name, email, password, role });
 
       if (response.success) {
         logout();
@@ -127,6 +127,14 @@ export const AuthProvider = ({ children }) => {
    */
   const clearError = () => setError(null);
 
+  const refreshUser = async () => {
+    const response = await getProfile();
+    const userData = response.data.user;
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    return userData;
+  };
+
   // Context value
   const value = {
     user,
@@ -137,7 +145,8 @@ export const AuthProvider = ({ children }) => {
     login,
     signup,
     logout,
-    clearError
+    clearError,
+    refreshUser
   };
 
   return (

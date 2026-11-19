@@ -171,9 +171,9 @@ const generateFallbackResponse = (userMessage, moodResult, safetyResult) => {
     response = `I'm concerned about what you're sharing. Your safety is the most important thing.
 
 Please reach out for immediate support:
-- National Suicide Prevention Lifeline: Call or text 988
-- Crisis Text Line: Text HOME to 741741
-- Emergency services: Call 911 if in immediate danger
+- Tele-MANAS: 14416
+- Alternate toll-free: 1800-89-14416
+- Emergency services: Call 112 if in immediate danger
 
 You don't have to face this alone. There are trained professionals ready to help you right now.`;
     resources = getResourcesForTypes(['crisis_hotlines']);
@@ -258,8 +258,9 @@ You don't have to face this alone. There are trained professionals ready to help
 const getResourcesForTypes = (resourceTypes) => {
   const allResources = {
     crisis_hotlines: [
-      { name: 'National Suicide Prevention Lifeline', contact: '988', description: '24/7 support' },
-      { name: 'Crisis Text Line', contact: 'Text HOME to 741741', description: 'Text-based support' }
+      { name: 'Tele-MANAS', contact: '14416', description: '24/7 tele-mental health support in India' },
+      { name: 'Tele-MANAS Toll-Free', contact: '1800-89-14416', description: 'Alternate toll-free support line' },
+      { name: 'Emergency', contact: '112', description: 'Immediate emergency assistance' }
     ],
     coping_techniques: [
       { name: 'Deep Breathing', description: '4-7-8 breathing technique for anxiety' },

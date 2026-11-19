@@ -52,4 +52,11 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const requireRole = (...roles) => (req, res, next) => {
+  if (!req.user || !roles.includes(req.user.role || 'user')) {
+    return res.status(403).json({ success: false, message: 'This account does not have access to this feature' });
+  }
+  next();
+};
+
+module.exports = { protect, requireRole };

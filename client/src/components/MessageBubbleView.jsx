@@ -21,13 +21,18 @@ const riskBorder = (level) => {
   return m[level] || null;
 };
 
-const MessageBubbleView = ({ role, content, mood, confidence, timestamp, resources, riskLevel, followUp, safety }) => {
+const MessageBubbleView = ({ role, content, mood, confidence, timestamp, resources, riskLevel, followUp, safety, trustedContactPrompt, agentSnapshot }) => {
   const isUser = role === 'user';
+  const snapshot = agentSnapshot || null;
+  const displayedMood = mood || snapshot?.mood;
+  const displayedConfidence = confidence ?? snapshot?.moodConfidence;
+  const displayedSafety = safety || snapshot?.safety;
 
   const fmtTime = (t) => t ? new Date(t).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
   const getMoodLabel = (m) => MOOD_LABELS[m] || 'Reflective';
 
-  const borderColor = !isUser && riskLevel && riskLevel !== 'none' ? riskBorder(riskLevel) : null;
+  const effectiveRiskLevel = riskLevel || displayedSafety?.riskLevel;
+  const borderColor = !isUser && effectiveRiskLevel && effectiveRiskLevel !== 'none' ? riskBorder(effectiveRiskLevel) : null;
 
   return (
     <div
@@ -66,7 +71,7 @@ const MessageBubbleView = ({ role, content, mood, confidence, timestamp, resourc
           style={{
             padding:'14px 18px',
             ...(borderColor ? { borderColor, borderWidth:2 } : {}),
-            ...(riskLevel === 'crisis' && !isUser ? { background:'rgba(170,30,20,0.12)' } : {}),
+            ...(effectiveRiskLevel === 'crisis' && !isUser ? { background:'rgba(170,30,20,0.12)' } : {}),
           }}
         >
           <p
@@ -106,14 +111,27 @@ const MessageBubbleView = ({ role, content, mood, confidence, timestamp, resourc
             </div>
           )}
 
+          {!isUser && trustedContactPrompt?.contacts?.length > 0 && (
+            <div style={{ marginTop:14, paddingTop:12, borderTop:'1px solid var(--border-faint)' }}>
+              <p className="t-label" style={{ marginBottom:6 }}>Your trusted support</p>
+              <p style={{ fontSize:13, color:'var(--text-muted)', marginBottom:9 }}>Here is the notification status for each trusted contact. Solace never includes your message or chat history in these email alerts.</p>
+              <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
+                {trustedContactPrompt.contacts.map((contact, index) => <div className="card-inset" key={`${contact.name}-${index}`} style={{ display:'flex', justifyContent:'space-between', gap:10, alignItems:'center', padding:'9px 13px', flexWrap:'wrap' }}>
+                  <div><span style={{ color:'var(--text-body)', fontWeight:600 }}>{contact.name}</span><p style={{ fontSize:12, color:'var(--text-muted)', marginTop:4 }}>{contact.emailStatus === 'sent' ? 'Alert accepted by the email provider; inbox delivery is not confirmed.' : contact.emailStatus === 'already_sent' ? 'An alert was already accepted for this chat.' : contact.emailStatus === 'pending' ? 'An alert email is being processed.' : contact.emailStatus === 'failed' ? 'Email could not be sent. Please contact them directly.' : contact.emailStatus === 'not_configured' ? 'Email delivery is not configured on this server.' : contact.emailStatus === 'email_opt_in_required' ? 'No email sent: this contact has not opted in to Solace alert emails.' : contact.emailStatus === 'email_not_available' ? 'No email address is saved; contact them directly if needed.' : 'Email address could not be used.'}</p></div>
+                  <span style={{ display:'flex', gap:12 }}>{contact.phone && <a href={`tel:${contact.phone}`} style={{ color:'var(--accent)' }}>Call</a>}{contact.email && <a href={`mailto:${contact.email}`} style={{ color:'var(--accent)' }}>Email</a>}</span>
+                </div>)}
+              </div>
+            </div>
+          )}
+
           {/* Follow-up & safety */}
-          {!isUser && (followUp || (safety?.riskLevel && safety.riskLevel !== 'none')) && (
+          {!isUser && (followUp || (effectiveRiskLevel && effectiveRiskLevel !== 'none')) && (
             <div style={{ marginTop:14, paddingTop:12, borderTop:'1px solid var(--border-faint)', display:'flex', flexDirection:'column', gap:8 }}>
-              {safety?.riskLevel && safety.riskLevel !== 'none' && (
+              {effectiveRiskLevel && effectiveRiskLevel !== 'none' && (
                 <div style={{ padding:'9px 13px', borderRadius:'var(--r-sm)', background:'var(--status-danger)', border:'1px solid rgba(190,70,60,0.22)', fontSize:13.5, color:'var(--status-danger-text)' }}>
                   <span style={{ fontWeight:600 }}>Safety: </span>
-                  <span style={{ textTransform:'capitalize' }}>{safety.riskLevel}</span>
-                  {safety.needsAttention ? ' — please reach out for support' : ''}
+                  <span style={{ textTransform:'capitalize' }}>{effectiveRiskLevel}</span>
+                  {displayedSafety?.needsAttention ? ' — please reach out for support' : ''}
                 </div>
               )}
               {followUp && (
@@ -127,10 +145,31 @@ const MessageBubbleView = ({ role, content, mood, confidence, timestamp, resourc
         </div>
 
         {/* Below-bubble metadata */}
-        {!isUser && mood && (
+        {!isUser && displayedMood && (
           <div style={{ marginTop:6, marginLeft:4, display:'flex', alignItems:'center', gap:6 }}>
-            <span className={`mood-tag ${getMoodClass(mood)}`}>{getMoodLabel(mood)}</span>
+            <span className={`mood-tag ${getMoodClass(displayedMood)}`}>{getMoodLabel(displayedMood)}</span>
           </div>
+        )}
+        {!isUser && snapshot && (
+          <details style={{ margin:'8px 4px 0', maxWidth:560, color:'var(--text-muted)' }}>
+            <summary style={{ cursor:'pointer', fontSize:12, color:'var(--text-faint)' }}>Agent analysis · {displayedConfidence ? `${Math.round(displayedConfidence * 100)}% mood confidence` : 'pipeline details'}</summary>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))', gap:8, marginTop:8 }}>
+              <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Mood</strong><br />{snapshot.mood || '—'}{displayedConfidence != null ? ` · ${Math.round(displayedConfidence * 100)}%` : ''}</div>
+              <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Safety</strong><br />{snapshot.safety?.riskLevel || 'none'} · {Math.round((snapshot.safety?.riskScore || 0) * 100)}% risk score</div>
+              <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Response plan</strong><br />{snapshot.plan?.strategy || '—'}{snapshot.plan?.primaryFocus ? ` · ${snapshot.plan.primaryFocus}` : ''}</div>
+              <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Knowledge retrieval</strong><br />{snapshot.rag?.documentsFound || 0} matches{snapshot.rag?.categories?.length ? ` · ${snapshot.rag.categories.join(', ')}` : ''}</div>
+              {snapshot.moodIndicators?.length > 0 && <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Mood indicators</strong><br />{snapshot.moodIndicators.join(', ')}</div>}
+              {snapshot.plan?.tone && <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Planned tone</strong><br />{snapshot.plan.tone}</div>}
+              {snapshot.plan?.keyPoints?.length > 0 && <div className="card-inset" style={{ padding:10, fontSize:12, gridColumn:'1 / -1' }}><strong>Planned points</strong><br />{snapshot.plan.keyPoints.join(' · ')}</div>}
+              {snapshot.processingTime != null && <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Processing time</strong><br />{snapshot.processingTime} ms</div>}
+              {snapshot.safety?.assessment && <div className="card-inset" style={{ padding:10, fontSize:12, gridColumn:'1 / -1' }}><strong>Safety assessment</strong><br />{snapshot.safety.assessment}</div>}
+              {snapshot.safety?.riskCategories?.length > 0 && <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Safety categories</strong><br />{snapshot.safety.riskCategories.join(', ')}</div>}
+              {snapshot.safety?.triggerPhrases?.length > 0 && <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Safety trigger phrases</strong><br />{snapshot.safety.triggerPhrases.join(', ')}</div>}
+              {snapshot.safety?.immediateAction && <div className="card-inset" style={{ padding:10, fontSize:12 }}><strong>Safety action</strong><br />Immediate support guidance was activated.</div>}
+              {snapshot.followUp && <div className="card-inset" style={{ padding:10, fontSize:12, gridColumn:'1 / -1' }}><strong>Suggested follow-up</strong><br />{snapshot.followUp}</div>}
+              {snapshot.resources?.length > 0 && <div className="card-inset" style={{ padding:10, fontSize:12, gridColumn:'1 / -1' }}><strong>Suggested resources</strong><br />{snapshot.resources.map(resource => [resource.name, resource.contact, resource.description].filter(Boolean).join(' · ')).join(' | ')}</div>}
+            </div>
+          </details>
         )}
         {isUser && (
           <p style={{ marginTop:5, textAlign:'right', marginRight:4, fontSize:11.5, color:'var(--text-faint)' }}>

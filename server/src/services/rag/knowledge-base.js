@@ -60,7 +60,7 @@ Self-care strategies:
 5. Get regular exercise
 6. Practice good sleep hygiene
 
-Important: If you're having thoughts of harming yourself, please reach out for help immediately. Call 988 (Suicide & Crisis Lifeline) or text HOME to 741741 (Crisis Text Line).`,
+Important: If you're having thoughts of harming yourself, please reach out for help immediately. Contact Tele-MANAS at 14416 or 1800-89-14416. Call 112 if there is immediate danger.`,
     tags: ['depression', 'self-care', 'symptoms', 'crisis']
   },
   {
@@ -267,7 +267,7 @@ Safer coping alternatives:
 Getting help:
 - Talk to someone you trust
 - Contact a mental health professional
-- Call a helpline: 988 or text HOME to 741741
+- Call a helpline: Tele-MANAS 14416 or 1800-89-14416
 
 Important: Self-harm can be a sign of serious emotional distress. Professional support is available and can help you find healthier ways to cope.`,
     tags: ['self-harm', 'coping', 'crisis', 'professional-help']
@@ -280,9 +280,9 @@ Important: Self-harm can be a sign of serious emotional distress. Professional s
     content: `If you're in crisis or having thoughts of harming yourself, please reach out for help immediately. You are not alone.
 
 National Crisis Lines:
-- National Suicide Prevention Lifeline: 988 (call or text)
-- Crisis Text Line: Text HOME to 741741
-- SAMHSA National Helpline: 1-800-662-4357
+- Tele-MANAS: 14416
+- Tele-MANAS toll-free: 1800-89-14416
+- Emergency assistance: 112
 
 For specific populations:
 - Veterans Crisis Line: 1-800-273-8255, press 1
@@ -304,7 +304,7 @@ If someone you know is in crisis:
 - Help them connect with resources
 - Encourage professional help
 
-Emergency services: Call 911 if there's immediate danger`,
+Emergency services: Call 112 if there's immediate danger`,
     tags: ['crisis', 'emergency', 'resources', 'hotlines']
   },
   {

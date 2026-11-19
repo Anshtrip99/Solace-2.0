@@ -34,6 +34,12 @@ const Login = () => {
     }
   };
 
+  const fillDemoLogin = (email) => {
+    setIdentifier(email);
+    setPassword('SolaceDemo!2026');
+    setError('');
+  };
+
   return (
     <div
       className="f-ui"
@@ -156,7 +162,7 @@ const Login = () => {
         {/* Footer note */}
         <p style={{ fontSize: 12.5, color: 'var(--text-faint)', lineHeight: 1.65, position: 'relative' }}>
           Solace is not a substitute for professional mental health care.<br />
-          If you're in crisis, call or text <strong style={{ color: 'var(--accent)' }}>988</strong> immediately.
+          If you're in crisis, contact <strong style={{ color: 'var(--accent)' }}>Tele-MANAS 14416</strong> or call <strong style={{ color: 'var(--accent)' }}>112</strong> for immediate emergency support.
         </p>
       </div>
 
@@ -217,6 +223,14 @@ const Login = () => {
             >
               {error}
             </div>
+          )}
+
+          {process.env.REACT_APP_DEMO_MODE === 'true' && (
+            <section className="demo-access" aria-label="Demo accounts">
+              <div><strong>Demo access</strong><p>Sample profiles and conversations are fictional.</p></div>
+              <button type="button" className="btn btn-secondary" onClick={() => fillDemoLogin('demo.user@solace.local')}>User demo</button>
+              <button type="button" className="btn btn-secondary" onClick={() => fillDemoLogin('demo.mentor.maya@solace.local')}>Mentor demo</button>
+            </section>
           )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>

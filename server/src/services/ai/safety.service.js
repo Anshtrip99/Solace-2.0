@@ -36,33 +36,33 @@ const RISK_CATEGORIES = [
 const EMERGENCY_RESOURCES = {
   general: [
     {
-      name: 'National Suicide Prevention Lifeline',
-      contact: '988 (US)',
-      description: 'Free, 24/7 support for people in distress'
+      name: 'Tele-MANAS',
+      contact: '14416',
+      description: '24/7 national tele-mental health support in India'
     },
     {
-      name: 'Crisis Text Line',
-      contact: 'Text HOME to 741741',
-      description: 'Text-based crisis support available 24/7'
+      name: 'Tele-MANAS Toll-Free',
+      contact: '1800-89-14416',
+      description: 'Alternate toll-free mental health support number'
     },
     {
-      name: 'International Association for Suicide Prevention',
-      contact: 'https://www.iasp.info/resources/Crisis_Centres/',
-      description: 'Find crisis centers worldwide'
+      name: 'Emergency Response Support System',
+      contact: '112',
+      description: 'Immediate emergency assistance in India'
     }
   ],
   self_harm: [
     {
-      name: 'Self-Harm Hotline',
-      contact: '1-800-366-8288',
-      description: 'Support for those struggling with self-harm'
+      name: 'Tele-MANAS',
+      contact: '14416',
+      description: 'Mental health support for self-harm related distress'
     }
   ],
   suicide: [
     {
-      name: 'National Suicide Prevention Lifeline',
-      contact: '988',
-      description: 'Immediate help available 24/7'
+      name: 'Tele-MANAS',
+      contact: '14416',
+      description: 'Immediate mental health support available 24/7'
     }
   ]
 };
@@ -279,10 +279,10 @@ const generateSafetyResponse = (safetyResult) => {
       response = `I'm very concerned about what you're sharing with me. Your safety is the most important thing right now.
 
 Please reach out for immediate support:
-- Call or text 988 (Suicide & Crisis Lifeline) - available 24/7
-- Text HOME to 741741 (Crisis Text Line)
+- Call Tele-MANAS: 14416
+- Alternate toll-free: 1800-89-14416
 - Go to your nearest emergency room
-- Call emergency services (911 in the US)
+- Call emergency services (112 in India)
 
 You don't have to face this alone. There are people who want to help you through this moment.`;
       resources = EMERGENCY_RESOURCES.general.concat(EMERGENCY_RESOURCES.suicide);
@@ -292,8 +292,8 @@ You don't have to face this alone. There are people who want to help you through
       response = `I hear that you're going through something really difficult. What you're feeling matters, and I want to make sure you have support.
 
 If you're in crisis or having thoughts of hurting yourself, please reach out:
-- National Suicide Prevention Lifeline: 988
-- Crisis Text Line: Text HOME to 741741
+- Tele-MANAS: 14416
+- Alternate toll-free: 1800-89-14416
 
 Would you like to talk more about what you're experiencing? I'm here to listen.`;
       resources = EMERGENCY_RESOURCES.general.concat(EMERGENCY_RESOURCES.self_harm);
@@ -305,7 +305,7 @@ Would you like to talk more about what you're experiencing? I'm here to listen.`
 If you need to talk to someone, consider:
 - A trusted friend or family member
 - A mental health professional
-- Support hotlines like 988 or text HOME to 741741
+- Support lines like Tele-MANAS 14416 or 1800-89-14416
 
 I'm here to listen. Would you like to share more about what's been troubling you?`;
       resources = EMERGENCY_RESOURCES.general;

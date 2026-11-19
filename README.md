@@ -16,6 +16,7 @@ Solace combines conversational support, emotional-pattern analytics, and free me
 - [Technology](#technology)
 - [Repository structure](#repository-structure)
 - [Run locally](#run-locally)
+- [Deploy to Vercel](#deploy-to-vercel)
 - [Environment configuration](#environment-configuration)
 - [Presentation demo data](#presentation-demo-data)
 - [API reference](#api-reference)
@@ -248,7 +249,8 @@ AgenticAi/
     └── src/
         ├── server.js                         # Active server entry; loads .env and MongoDB
         ├── app.mjs                           # Active Express app and route mounting
-        ├── app.js                             # Older CommonJS app configuration
+        ├── app.js                             # Vercel-compatible adapter to the active Express app
+        ├── app.legacy.js                      # Preserved older CommonJS app configuration
         ├── config/
         │   ├── db.js                          # MongoDB connection
         │   ├── llm.js                         # Gemini-compatible LLM client and fallback
@@ -345,6 +347,36 @@ The development client opens at `http://localhost:3000`. If you change a `REACT_
 cd client
 npm run build
 ```
+
+## Deploy to Vercel
+
+Solace is a client/server monorepo and should be deployed as two Vercel projects linked to this same Git repository. This keeps the Create React App static build separate from the Express API while preserving the existing architecture.
+
+Current production deployments: [Solace web app](https://solace-frontend-drab.vercel.app) · [API health](https://solace-api-sigma.vercel.app/api/health).
+
+### Frontend project
+
+1. Import the repository in Vercel and set **Root Directory** to `client`.
+2. Vercel uses `client/vercel.json` to run `npm run build`, publish `build`, and serve client-side routes through `index.html`.
+3. Add `REACT_APP_API_URL` as a build environment variable, set to the deployed API origin followed by `/api` (for example, `https://solace-api-your-team.vercel.app/api`).
+4. Add `REACT_APP_DEMO_MODE` only if demo quick-fill buttons should be enabled in the public build.
+
+### API project
+
+1. Import the same repository again as a second Vercel project and set **Root Directory** to `server`.
+2. Vercel detects the Express adapter in `src/app.js`, which forwards to the maintained app in `src/app.mjs`. Database connection is initialized on demand and reused in warm serverless instances; `/api/health` stays available as a lightweight health check.
+3. Configure these server environment variables in Vercel **without** a `REACT_APP_` prefix:
+   - `MONGODB_URI`
+   - `JWT_SECRET` (use a long, unique production secret)
+   - `GEMINI_API_KEY` (needed for live AI responses)
+   - `FRONTEND_URL` (the exact deployed frontend origin, with no `/` path)
+   - `RESEND_API_KEY` and `TRUSTED_CONTACT_FROM_EMAIL` if trusted-contact email alerts should be enabled
+4. Allow the Vercel API deployment to connect to MongoDB Atlas by configuring Atlas network access for the deployment. Keep database credentials and API keys only in Vercel's server-side environment settings.
+5. Deploy the API, copy its production origin into the frontend's `REACT_APP_API_URL`, then deploy the frontend. Redeploy the frontend whenever that build-time API URL changes.
+
+The app uses Jitsi for meeting rooms; mentor booking and session messaging are handled by the API and MongoDB. Vercel deployment does not provision MongoDB, Gemini, or Resend accounts. Configure production and preview environment values deliberately because the API's CORS policy allows the origin in `FRONTEND_URL`.
+
+For CLI deployments, link `client` and `server` as separate Vercel projects and run `vercel --prod` from each project directory. Do not commit `.env` files or paste production secrets into the repository.
 
 ## Environment configuration
 
